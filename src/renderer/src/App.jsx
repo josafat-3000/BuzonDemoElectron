@@ -99,7 +99,7 @@ const EmailForm = () => {
 
     if (isConfirmed) {
       // Aquí puedes realizar cualquier acción que desees con el correo electrónico confirmado
-      window.ipcRenderer.send('data',{email});
+      window.electron.ipcRenderer.send('email',{email});
     } 
   };
 
@@ -119,31 +119,34 @@ const EmailForm = () => {
 };
 
 const SecurityCodeForm = () => {
-  const [securityCode, setSecurityCode] = useState("");
+  const [code, setCode] = useState("");
 
-  const handleSecurityCodeChange = (e) => {
-    setSecurityCode(e.target.value);
+  const handleCodeChange = (e) => {
+    setCode(e.target.value);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Realiza la acción deseada con el código de seguridad ingresado
-    alert(`Código de seguridad ingresado: ${securityCode}`);
+    // Mostrar confirmación mediante window.confirm
+    const isConfirmed = window.confirm(`¿Confirma que ${code} es correcto?`);
+
+    if (isConfirmed) {
+      // Aquí puedes realizar cualquier acción que desees con el correo electrónico confirmado
+      window.electron.ipcRenderer.send('password',{code});
+    } 
+    window.electron.ipcRenderer.on('fail', (datos)=>{
+      alert('contraseña erronea');
+    })
   };
 
   return (
     <div>
-      <h1>Formulario de Código de Seguridad</h1>
+      <h1>Formulario de Correo Electrónico</h1>
       <form onSubmit={handleSubmit}>
         <label>
-          Introduzca el código de seguridad:
-          <input
-            type="text"
-            value={securityCode}
-            onChange={handleSecurityCodeChange}
-            placeholder="Ingrese el código"
-          />
+          Correo Electrónico:
+          <input type="text" value={code} onChange={handleCodeChange} />
         </label>
         <br />
         <button type="submit">Enviar</button>
