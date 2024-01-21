@@ -1,12 +1,13 @@
 import { Routes, Route, Outlet, Link } from "react-router-dom";
 import { useState } from 'react';
-
+import colocar from './assets/colocar.jpg'; 
+import retirar from './assets/retirar.jpg'; 
+import home from './assets/house-solid.svg'
+import './assets/index.css'
 
 export default function App() {
   return (
-    <div>
-      <h1>Basic Example</h1>
-
+    <div >
       {/* Routes nest inside one another. Nested route paths build upon
             parent route paths, and nested route elements render inside
             parent route elements. See the note about <Outlet> below. */}
@@ -27,10 +28,7 @@ function Layout() {
       {/* A "layout route" is a good place to put markup you want to
           share across all the pages on your site, like navigation. */}
 
-      <Link to="/">Home</Link>
-
-
-      <hr />
+      
 
       {/* An <Outlet> renders whatever child route is currently active,
           so you can think about this <Outlet> as a placeholder for
@@ -42,15 +40,21 @@ function Layout() {
 
 function Home() {
   return (
-    <div>
-      <h2>Home</h2>
-      <div className="button-links">
-        <Link to="/colocar" className="button-link">
+    <div className="body">
+      <h1>Bienvenido</h1>
+      <div className="container">
+        <div className="button-container">
+          <img src={colocar}  alt="Descripción de la imagen" />
+          <Link className="colocar-button" to="/colocar" >
           Colocar paquete
-        </Link>
-        <Link to="/retirar" className="button-link">
+          </Link>
+        </div>
+        <div className="button-container">
+          <img src={retirar} alt="Descripción de la imagen" />
+          <Link className="retirar-button" to="/retirar">
           Retirar paquete
-        </Link>
+          </Link>
+        </div>
       </div>
     </div>
   );
@@ -59,19 +63,30 @@ function Home() {
 
 function Colocar() {
   return (
-    <div>
+    <div className="body">
       <h2>Colocar Paquete</h2>
-      <EmailForm/>
+      <Link to="/"> <img className="home" src={home} alt="" /></Link>
+      <hr className="mi-hr"/>
+      <div className="email-form">
+        
+      <EmailForm />
+      </div>
     </div>
   );
 }
 
 function Retirar() {
   return (
-    <div>
-      <h2>Retirar paquete</h2>
-      <SecurityCodeForm/>
+    
+    <div className="body">
+    <h2>Retirar paquete</h2>
+    <Link to="/"> <img className="home" src={home} alt="" /></Link>
+    <hr className="mi-hr"/>
+    <div className="email-form">
+      
+    <SecurityCodeForm/>
     </div>
+  </div>
   );
 }
 
@@ -105,14 +120,14 @@ const EmailForm = () => {
 
   return (
     <div>
-      <h1>Formulario de Correo Electrónico</h1>
+      <h2>Introduce tu correo electrónico</h2>
       <form onSubmit={handleSubmit}>
-        <label>
-          Correo Electrónico:
-          <input type="email" value={email} onChange={handleEmailChange} />
-        </label>
+        
+
+          <input className="input" type="email" value={email} onChange={handleEmailChange} />
+        
         <br />
-        <button type="submit">Enviar</button>
+        <button className="submit-button" type="submit">Enviar</button>
       </form>
     </div>
   );
@@ -142,14 +157,13 @@ const SecurityCodeForm = () => {
 
   return (
     <div>
-      <h1>Formulario de Correo Electrónico</h1>
+      <h2>Introduce tu codigo de seguridad</h2>
       <form onSubmit={handleSubmit}>
         <label>
-          Correo Electrónico:
-          <input type="text" value={code} onChange={handleCodeChange} />
+          <input className="input" type="text" value={code} onChange={handleCodeChange} />
         </label>
         <br />
-        <button type="submit">Enviar</button>
+        <button className="submit-button" type="submit">Enviar</button>
       </form>
     </div>
   );
