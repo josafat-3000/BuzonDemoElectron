@@ -3,12 +3,17 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import nodemailer from "nodemailer"
-// const Gpio = require('onoff').Gpio;
+const Gpio = require('onoff').Gpio;
 
-// const Lock_1 = new Gpio(8,'out');
-// const Lock_2 = new Gpio(9,'out');
-// const Lock_3 = new Gpio(11,'out');
-// const Lock_4 = new Gpio(25,'out');
+const Lock_1 = new Gpio(8,'out');
+const Lock_2 = new Gpio(9,'out');
+const Lock_3 = new Gpio(11,'out');
+const Lock_4 = new Gpio(25,'out');
+
+Lock_1.writeSync(1);
+Lock_2.writeSync(1);
+Lock_3.writeSync(1);
+Lock_4.writeSync(1);
 
 let message ;
 let EdoLockerDis_1 = true;
@@ -117,15 +122,40 @@ function createWindow() {
     console.log(locker)
     if(locker == 1){
       password1 = password;
+      Lock_1.writeSync(0);
+      setTimeout(() => {
+        console.log('1')
+        Lock_1.writeSync(1);
+      }, 100);
+      
     }
+
     else if(locker == 2){
       password2 = password;
+      Lock_2.writeSync(0);
+      setTimeout(() => {
+        console.log('2')
+        Lock_2.writeSync(1);
+      }, 100);
+
     }
     else if (locker == 3){
       password3 = password;
+      console.log('3')
+      Lock_3.writeSync(0);
+      setTimeout(() => {
+        Lock_3.writeSync(1);
+      }, 100);
+      
     }
     else if(locker == 4){
+      console.log('4')
       password4 = password;
+      Lock_4.writeSync(0);
+      setTimeout(() => {
+        Lock_4.writeSync(1);
+      }, 100);
+      
     }
     console.log(EdoLockerDis_1,EdoLockerDis_2,EdoLockerDis_3,EdoLockerDis_4)
   });
@@ -135,29 +165,29 @@ function createWindow() {
     console.log(password1,password2,password3,password4)
     if(datos.code == password1){
       console.log('uno')
-      Lock_1.writeSync(1);
+      Lock_1.writeSync(0);
       setTimeout(() => {
-        Lock_1.writeSync(0);
+        Lock_1.writeSync(1);
       }, 100);
       
     }
     else if(datos.code === password2){
       console.log('dos')
-      Lock_2.writeSync(1);
+      Lock_2.writeSync(0);
       setTimeout(() => {
-        Lock_2.writeSync(0);
+        Lock_2.writeSync(1);
       }, 100);
     } else if (datos.code === password3){
       console.log('tres')
-      Lock_3.writeSync(1);
+      Lock_3.writeSync(0);
       setTimeout(() => {
-        Lock_3.writeSync(0);
+        Lock_3.writeSync(1);
       }, 100);
     } else if (datos.code === password4){
       console.log('cuatro')
-      Lock_4.writeSync(1);
+      Lock_4.writeSync(0);
       setTimeout(() => {
-        Lock_4.writeSync(0);
+        Lock_4.writeSync(1);
       }, 100);
     } else{
       mainWindow.webContents.send('fail',null);
