@@ -3,17 +3,88 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import nodemailer from "nodemailer"
-const Gpio = require('onoff').Gpio;
+const Mfrc522 = require("rc522-rpi");
+const SoftSPI = require("rpi-softspi");
 
-const Lock_1 = new Gpio(8,'out');
-const Lock_2 = new Gpio(9,'out');
-const Lock_3 = new Gpio(11,'out');
-const Lock_4 = new Gpio(25,'out');
 
-Lock_1.writeSync(1);
-Lock_2.writeSync(1);
-Lock_3.writeSync(1);
-Lock_4.writeSync(1);
+async function readUID() {
+  console.log("Scanning...");
+  console.log("Please put chip or keycard in the antenna inductive zone!");
+
+  const softSPI = new SoftSPI({
+    clock: 23, // pin number of SCLK
+    mosi: 19, // pin number of MOSI
+    miso: 21, // pin number of MISO
+    client: 24 // pin number of CS
+  });
+  const mfrc522 = new Mfrc522(softSPI).setResetPin(22).setBuzzerPin(18);
+  const id = setInterval(function() {
+    //# reset card
+    mfrc522.reset();
+  
+    //# Scan for cards
+    let response = mfrc522.findCard();
+    if (!response.status) {
+      console.log("No Card");
+      return;
+    }
+    console.log("Card detected, CardType: " + response.bitSize);
+  
+    //# Get the UID of the card
+    response = mfrc522.getUid();
+    if (!response.status) {
+      console.log("UID Scan Error");
+      return;
+    }
+    //# If we have the UID, continue
+    const uid = response.data;
+    console.log(
+      "Card read UID: %s %s %s %s",
+      uid[0].toString(16),
+      uid[1].toString(16),
+      uid[2].toString(16),
+      uid[3].toString(16)
+    );
+  
+    //# Select the scanned card
+    const memoryCapacity = mfrc522.selectCard(uid);
+    console.log("Card Memory Capacity: " + memoryCapacity);
+  
+    //# This is the default key for authentication
+    const key = [0xff, 0xff, 0xff, 0xff, 0xff, 0xff];
+  
+    //# Authenticate on Block 8 with key and uid
+    if (!mfrc522.authenticate(8, key, uid)) {
+      console.log("Authentication Error");
+      return;
+    }
+  
+    //# Dump Block 8
+    console.log("Block: 8 Data: " + mfrc522.getDataForBlock(8));
+  
+    //# Stop
+    mfrc522.stopCrypto();
+    if(response){
+      clearInterval(id);
+      response == null;
+    }
+  }, 500);
+  return uid;
+}
+
+// Función para mostrar el UID en pantalla
+
+// const Gpio = require('onoff').Gpio;
+
+// const Lock_1 = new Gpio(8,'out');
+// const Lock_2 = new Gpio(9,'out');
+// const Lock_3 = new Gpio(11,'out');
+// const Lock_4 = new Gpio(25,'out');
+
+// Lock_1.writeSync(1);
+// Lock_2.writeSync(1);
+// Lock_3.writeSync(1);
+// Lock_4.writeSync(1);
 
 let message ;
 let EdoLockerDis_1 = true;
@@ -194,6 +265,18 @@ function createWindow() {
       console.log('fail')
     }
   });
+    
+  ipcMain.on('rfid',async (event,datos)=>{
+    console.log("rfid");
+        const uid = await readUID();
+    if (uid !== null) {
+      mainWindow.webContents.send('uid',{...uid});
+      console.log("Card UID:", uid[0].toString(16)+uid[1].toString(16)+uid[2].toString(16)+uid[3].toString(16));
+    } else {
+      console.log("Error reading card UID.");
+    }
+
+  })
 
 }
 
